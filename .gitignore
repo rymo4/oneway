@@ -2,3 +2,5 @@
 players.list
 *.html
 .DS_Store
+.classpath
+.project
