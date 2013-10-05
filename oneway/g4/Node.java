@@ -18,6 +18,8 @@ public class Node {
   private int currentTime;
   private int numSegments;
 
+  // This takes so many things that we probably want to find a better way to store this.
+  // It'll prob use a ton of memory and invoke too much GC, slowing it down. But we'll see.
   public Node(int time, int nsegments, MovingCar[] movingCars,
       Parking[] left, Parking[] right, boolean[] llights, boolean[] rlights){
     movingCars = movingCars;
@@ -32,7 +34,7 @@ public class Node {
   public ArrayList<Node> successors() {
     int newTime = currentTime + 1;
     ArrayList<Node> children = new ArrayList<Node>();
-    // Find all the states
+    // TODO: Find all the states
     return children;
   }
 
@@ -60,6 +62,22 @@ public class Node {
   // Maybe use a feature vector of different heuristics and later train
   // to get optimal weights
   private double h() {
+    // TODO: Make this
     return 10000;
+  }
+
+  // Returns something like this:
+  //   left lights  right lights
+  // [[true false], [false true]]
+  // This is what the Player class will call to figure out what to do
+  public static boolean[][] bestSetting(Node root, int numLights){
+    int LEFT = 0;
+    int RIGHT = 1;
+    boolean[][] lights = new boolean[2][numLights];
+
+    // TODO: Do some A* and fill lights[LEFT] and lights[RIGHT] with
+    // what you want them to be.
+
+    return lights;
   }
 }
