@@ -11,6 +11,7 @@ import java.util.*;
 */
 
 public class Node {
+  private static final int LENGTHS_PER_SECOND = 4;
   private Segment[] segments;
   private ParkingLot[] lots;
   private ArrayList<Car> allCars;
@@ -74,15 +75,16 @@ public class Node {
   // Path cost until this point
   private double g() {
     double cost = 0.0;
-    double m = (double) numSegments / 20;
-
-    // Sum the moving car costs
-    for (MovingCar car : movingCars){
-      int L = currentTime - car.startTime;
-      // Should this be base 2 10 or e?
-      cost += (L * Math.log10(L)) - (m * Math.log10(m));
+    double m = 0.0;
+    for (Segment segment : segments) {
+      m += (double) segment.getLength() / LENGTHS_PER_SECOND;
     }
-    // TODO: Have to figure out how to get the cost for parked cars
+
+    // Sum cost of each car
+    for (Car car : allCars) {
+      int l = currentTime - car.startTime;
+      cost += (l * Math.log10(l)) - (m * Math.log10(m));
+    }
 
     return cost;
   }
