@@ -53,6 +53,37 @@ public class Node {
     }
   }
   
+  private Node(Node node) {
+    currentTime = node.currentTime;
+    
+    allCars = new ArrayList<Car>();
+    
+    // Copy the parking lots and add their cars the arrays
+    lots = new ParkingLot[node.lots.length];
+    for (int i = 0; i < lots.length; i++) {
+      lots[i] = node.lots[i].copy();
+      List<Car> cars = lots[i].getCars();
+      for (Car c : cars) {
+        allCars.add(c);
+      }
+    }
+    
+    segments = new Segment[node.segments.length];
+    for (int i = 0; i < segments.length; i++) {
+      segments[i] = node.segments[i].copy();
+      List<Car> cars = segments[i].getCars();
+      for (Car c : cars) {
+        allCars.add(c);
+      }
+    }
+    
+    for (Car c : node.allCars) {
+      if (c.isComplete()) {
+        allCars.add(c);
+      }
+    }
+  }
+  
   private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot) {
     for (Integer carStartTime : cars) {
       Car car = new Car(carStartTime, Direction.LEFT);
@@ -62,12 +93,71 @@ public class Node {
   }
 
   public ArrayList<Node> successors() {
-    int newTime = currentTime + 1;
     ArrayList<Node> children = new ArrayList<Node>();
-    // TODO: Find all the states
+    
+    // max is the maximum number of light permutations
+    int max = (int) Math.pow(2, segments.length);
+    for(int i = 0; i < max; i++) {
+      
+      // Use a bit vector to find different permutations of lights
+      int binaryLightRepresentation = max;
+      boolean[] lights = new boolean[segments.length * 2];
+      for (int j = 0; j < lights.length; j++) {
+        lights[i] = binaryLightRepresentation % 2 == 0;
+        binaryLightRepresentation = binaryLightRepresentation >> 1;
+      }
+      
+      //Create the child, test it out, and keep it if its good
+      Node child = new Node(this);
+      child.setLights(lights);
+      child.parent = this;
+      if(child.playTurn() == false
+          && child.noFutureCrashes()
+          && child.noFutureOverflows()) {
+        children.add(child);
+      }
+    }
     return children;
   }
+  
+  private void setLights(boolean[] lights) {
+    int nSegments = segments.length;
+    for(int i = 0; i < nSegments; i++) {
+      segments[i].setLight(Direction.LEFT, lights[i]);
+      segments[i].setLight(Direction.RIGHT, lights[i+nSegments]);
+    }
+  }
 
+  // TODO: Should return false if overflows are guaranteed in the future
+  private boolean noFutureOverflows() {
+    return true;
+  }
+
+  // TODO: Should return false if crashes are guaranteed in the future
+  private boolean noFutureCrashes() {
+    return true;
+  }
+
+  /**
+   * Plays out a single turn on the current node.
+   * @return Whether or not the result of playing the turn results in overflow or crash
+   */
+  private boolean playTurn() {
+    currentTime += 1;
+    boolean fail = false;
+    for (int i = 0; i < segments.length; i++) {
+      fail = fail || segments[i].moveCarsForward(lots[i], lots[i+1]);
+    }
+    for (int i = 0; i < lots.length; i++) {
+      Segment leftSegment = i > 0 ? segments[i-1] : null;
+      Segment rightSegment = i < segments.length ? segments[i] : null;
+      fail = fail || lots[i].unparkCars(leftSegment, rightSegment);
+    }
+    lots[0].removeCars(Direction.LEFT, currentTime);
+    lots[lots.length-1].removeCars(Direction.RIGHT, currentTime);
+    return fail;
+  }
+  
   public double f() {
     return g() + h();
   }
@@ -82,7 +172,14 @@ public class Node {
 
     // Sum cost of each car
     for (Car car : allCars) {
-      int l = currentTime - car.startTime;
+      int l = 0;
+      if (car.isComplete()) {
+        l = car.getLatency();
+      }
+      else {
+        l = currentTime - car.startTime;
+        
+      }
       cost += (l * Math.log10(l)) - (m * Math.log10(m));
     }
 

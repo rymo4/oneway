@@ -28,4 +28,57 @@ public class ParkingLot {
       rightbound.add(car);
     }
   }
+
+  public List<Car> getCars() {
+    LinkedList<Car> cars = new LinkedList<Car>();
+    cars.addAll(leftbound);
+    cars.addAll(rightbound);
+    return cars;
+  }
+
+  public ParkingLot copy() {
+    ParkingLot newLot = new ParkingLot(this.capacity);
+    for (Car c : this.leftbound) {
+      newLot.leftbound.add(c.copy());
+    }
+    for (Car c : this.rightbound) {
+      newLot.rightbound.add(c.copy());
+    }
+    return newLot;
+  }
+
+  /**
+   * 
+   * @param leftSegment
+   * @param rightSegment
+   * @return true if this parking lot has overflowed, false otherwise.
+   */
+  public boolean unparkCars(Segment leftSegment, Segment rightSegment) {
+    if (leftSegment != null // There's a left segment 
+        && leftbound.size() > 0 // There are parked cars waiting to move left
+        && leftSegment.isLeftGreen() // The leftbound light is green
+        && leftSegment.firstTwoClear(Direction.LEFT)) { // There is room for another car
+      leftSegment.addCarAtPosition(leftbound.remove(), leftSegment.getLength() - 1);
+    }
+    if (rightSegment != null
+        && rightbound.size() > 0
+        && rightSegment.isRightGreen()
+        && rightSegment.firstTwoClear(Direction.RIGHT)) {
+      rightSegment.addCarAtPosition(rightbound.remove(), 0);
+    }
+    return rightbound.size() + leftbound.size() > capacity;
+  }
+
+  public void removeCars(Direction dir, int currentTime) {
+    if (dir == Direction.RIGHT) {
+      while(rightbound.size() > 0) {
+        rightbound.remove().setComplete(currentTime);
+      }
+    }
+    else {
+      while(leftbound.size() > 0) {
+        leftbound.remove().setComplete(currentTime);
+      }
+    }    
+  }
 }
