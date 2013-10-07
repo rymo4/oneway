@@ -5,30 +5,59 @@ import java.util.*;
 
 /*
  * A class representing one state of the game - meaning some combination of
- * car positions and light settings.
+ * car positions and light settings. This class should handle interfacing between
+ * oneway.g4 package representation of the states, and oneway.sim representation
+ * of game states.
 */
 
 public class Node {
-  private MovingCar[] movingCars;
-  private Parking[] left;
-  private Parking[] right;
-  private boolean[] llights;
-  private boolean[] rlights;
-  // Number of time ticks so far
+  private Segment[] segments;
+  private ParkingLot[] lots;
+  private ArrayList<Car> allCars;
+  private Node parent = null;
   private int currentTime;
-  private int numSegments;
-
-  // This takes so many things that we probably want to find a better way to store this.
-  // It'll prob use a ton of memory and invoke too much GC, slowing it down. But we'll see.
-  public Node(int time, int nsegments, MovingCar[] movingCars,
-      Parking[] left, Parking[] right, boolean[] llights, boolean[] rlights){
-    movingCars = movingCars;
-    left = left;
-    right = right;
-    llights = llights;
-    rlights = rlights;
+  
+  // Initialize a Node from Simulator information
+  public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
+    Parking[] left, Parking[] right, int[] capacities, boolean[] llights, 
+    boolean[] rlights){
+    
     currentTime = time;
-    numSegments = nsegments;
+    
+    // Initialize the allCars array
+    allCars = new ArrayList<Car>();
+    
+    // Create proper number of parking lots and fill with cars
+    lots = new ParkingLot[nSegments+1];
+    for (int i = 0; i <= nSegments; i++) {
+      lots[i] = new ParkingLot(capacities[i]);
+      addCarsToParkingLot(left[i], lots[i]);
+      addCarsToParkingLot(right[i], lots[i]);
+    }
+    
+    // Create proper number of segments
+    segments = new Segment[nSegments];
+    for (int i = 0; i < nSegments; i++) {
+      segments[i] = new Segment(lengths[i], llights[i], rlights[i]);
+    }
+    
+    // Place the movingCars on the segments
+    for(MovingCar movingCar : movingCars) {
+      Direction dir = movingCar.dir > 0 ? Direction.RIGHT : Direction.LEFT;
+      Segment segment = segments[movingCar.segment];
+      Car car = new Car(movingCar.startTime, dir);
+      
+      allCars.add(car);
+      segment.addCarAtPosition(car, movingCar.block);
+    }
+  }
+  
+  private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot) {
+    for (Integer carStartTime : cars) {
+      Car car = new Car(carStartTime, Direction.LEFT);
+      allCars.add(car);
+      lot.add(car);
+    }
   }
 
   public ArrayList<Node> successors() {
@@ -77,7 +106,6 @@ public class Node {
 
     // TODO: Do some A* and fill lights[LEFT] and lights[RIGHT] with
     // what you want them to be.
-
     return lights;
   }
 }
