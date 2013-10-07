@@ -55,4 +55,9 @@ public class Player extends oneway.sim.Player
     private int nsegments;
     private int nblocks;
     private int[] capacity;
+	@Override
+	public void init(int nsegments, int[] nblocks, int[] capacity) {
+		// TODO Auto-generated method stub
+		
+	}
 }
