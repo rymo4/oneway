@@ -85,6 +85,7 @@ public class Node implements Comparable<Node> {
   }
   
   private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot) {
+    if (cars == null) { return; }
     for (Integer carStartTime : cars) {
       Car car = new Car(carStartTime, Direction.LEFT);
       allCars.add(car);
@@ -103,7 +104,7 @@ public class Node implements Comparable<Node> {
       int binaryLightRepresentation = max;
       boolean[] lights = new boolean[segments.length * 2];
       for (int j = 0; j < lights.length; j++) {
-        lights[i] = binaryLightRepresentation % 2 == 0;
+        lights[j] = binaryLightRepresentation % 2 == 0;
         binaryLightRepresentation = binaryLightRepresentation >> 1;
       }
       
