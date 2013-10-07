@@ -10,7 +10,7 @@ import java.util.*;
  * of game states.
 */
 
-public class Node {
+public class Node implements Comparable<Node> {
   private static final int LENGTHS_PER_SECOND = 4;
   private Segment[] segments;
   private ParkingLot[] lots;
@@ -193,18 +193,25 @@ public class Node {
     // TODO: Make this
     return 10000;
   }
+  
+  @Override
+  public int compareTo(Node other) {
+    return (int) (this.f() - other.f());
+  }
 
-  // Returns something like this:
-  //   left lights  right lights
-  // [[true false], [false true]]
-  // This is what the Player class will call to figure out what to do
-  public static boolean[][] bestSetting(Node root, int numLights){
-    int LEFT = 0;
-    int RIGHT = 1;
-    boolean[][] lights = new boolean[2][numLights];
+  public boolean[] getLLights() {
+    boolean[] llights = new boolean[segments.length];
+    for(int i = 0; i < llights.length; i++) {
+      llights[i] = segments[i].isLeftGreen();
+    }
+    return llights;
+  }
 
-    // TODO: Do some A* and fill lights[LEFT] and lights[RIGHT] with
-    // what you want them to be.
-    return lights;
+  public boolean[] getRLights() {
+    boolean[] rlights = new boolean[segments.length];
+    for(int i = 0; i < rlights.length; i++) {
+      rlights[i] = segments[i].isRightGreen();
+    }
+    return rlights;
   }
 }
