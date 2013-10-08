@@ -1,6 +1,7 @@
 package oneway.g4;
 import oneway.sim.MovingCar;
 import oneway.sim.Parking;
+
 import java.util.*;
 
 /*
@@ -17,6 +18,7 @@ public class Node implements Comparable<Node> {
   private ArrayList<Car> allCars;
   private Node parent = null;
   private int currentTime;
+  private int m = 0;
   
   // Initialize a Node from Simulator information
   public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
@@ -32,14 +34,15 @@ public class Node implements Comparable<Node> {
     lots = new ParkingLot[nSegments+1];
     for (int i = 0; i <= nSegments; i++) {
       lots[i] = new ParkingLot(capacities[i]);
-      addCarsToParkingLot(left[i], lots[i]);
-      addCarsToParkingLot(right[i], lots[i]);
+      addCarsToParkingLot(left[i], lots[i], Direction.LEFT);
+      addCarsToParkingLot(right[i], lots[i], Direction.RIGHT);
     }
     
     // Create proper number of segments
     segments = new Segment[nSegments];
     for (int i = 0; i < nSegments; i++) {
       segments[i] = new Segment(lengths[i], llights[i], rlights[i]);
+      m += lengths[i];
     }
     
     // Place the movingCars on the segments
@@ -55,7 +58,7 @@ public class Node implements Comparable<Node> {
   
   private Node(Node node) {
     currentTime = node.currentTime;
-    
+    m = node.m;
     allCars = new ArrayList<Car>();
     
     // Copy the parking lots and add their cars the arrays
@@ -84,10 +87,10 @@ public class Node implements Comparable<Node> {
     }
   }
   
-  private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot) {
+  private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot, Direction dir) {
     if (cars == null) { return; }
     for (Integer carStartTime : cars) {
-      Car car = new Car(carStartTime, Direction.LEFT);
+      Car car = new Car(carStartTime, dir);
       allCars.add(car);
       lot.add(car);
     }
@@ -97,11 +100,11 @@ public class Node implements Comparable<Node> {
     ArrayList<Node> children = new ArrayList<Node>();
     
     // max is the maximum number of light permutations
-    int max = (int) Math.pow(2, segments.length);
+    int max = (int) Math.pow(2, segments.length * 2);
     for(int i = 0; i < max; i++) {
       
       // Use a bit vector to find different permutations of lights
-      int binaryLightRepresentation = max;
+      int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
       for (int j = 0; j < lights.length; j++) {
         lights[j] = binaryLightRepresentation % 2 == 0;
@@ -166,24 +169,13 @@ public class Node implements Comparable<Node> {
   // Path cost until this point
   private double g() {
     double cost = 0.0;
-    double m = 0.0;
-    for (Segment segment : segments) {
-      m += (double) segment.getLength() / LENGTHS_PER_SECOND;
-    }
-
     // Sum cost of each car
-    for (Car car : allCars) {
-      int l = 0;
+    for (Car car : allCars) {      
       if (car.isComplete()) {
-        l = car.getLatency();
+        int latency = car.getLatency();
+        cost += cost(latency);
       }
-      else {
-        l = currentTime - car.startTime;
-        
-      }
-      cost += (l * Math.log10(l)) - (m * Math.log10(m));
     }
-
     return cost;
   }
 
@@ -191,13 +183,55 @@ public class Node implements Comparable<Node> {
   // Maybe use a feature vector of different heuristics and later train
   // to get optimal weights
   private double h() {
-    // TODO: Make this
-    return 10000;
+    double totalCost = 0;
+    int totalDistance = m;
+    
+    int partDistance = 0;
+    for (int i = 0; i < lots.length; i++) {
+      // Calculate the expected cost of the lot
+      ParkingLot l = lots[i];
+      for (Car c : l.getCars()) {
+        int expectedFinish;
+        if (c.dir == Direction.LEFT) {
+          expectedFinish = currentTime + partDistance; 
+        }
+        else {
+          expectedFinish = currentTime + (totalDistance - partDistance);
+        }
+        totalCost += cost(expectedFinish - c.startTime);
+      }
+      
+      // Calculate the expected cost of the segment
+      // Skip segment calculation if at index 0.
+      if (i == 0) { continue; } 
+      Segment s = segments[i-1];
+      Car[] cars = s.getCarsByLocation();
+      for (int segDistance = 0; segDistance < cars.length; segDistance++) {
+        if (cars[segDistance] != null) {
+          int expectedFinish;
+          if (cars[segDistance].dir == Direction.LEFT) {
+            expectedFinish = currentTime + segDistance + partDistance;
+          }
+          else {
+            expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
+          }
+          totalCost += cost(expectedFinish - cars[segDistance].startTime);
+        }
+      }
+      
+      partDistance += s.getLength();
+    }
+    
+    return totalCost;
+  }
+  
+  private double cost(int latency) {
+    return (latency * Math.log10(latency)) - (((double) m) * Math.log10(m));
   }
   
   @Override
   public int compareTo(Node other) {
-    return (int) (this.f() - other.f());
+    return (int) Math.signum(this.f() - other.f());
   }
 
   public boolean[] getLLights() {

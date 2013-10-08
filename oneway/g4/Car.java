@@ -21,7 +21,7 @@ public class Car {
 
   public void setComplete(int currentTime) {
     complete = true;
-    int latency = currentTime - startTime;
+    latency = currentTime - startTime;
   }
   
   public int getLatency() {

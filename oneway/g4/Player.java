@@ -31,6 +31,10 @@ public class Player extends oneway.sim.Player
       List<Node> children = node.successors();
       Collections.sort(children);
       Node choice = children.get(0);
+      for (Node n : children) {
+        System.out.print(n.f() + " ");
+      }
+      System.out.println();
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();
       for(int i = 0; i < nsegments; i++) {

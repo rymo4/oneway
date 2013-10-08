@@ -1,5 +1,6 @@
 package oneway.g4;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +30,10 @@ public class Segment {
 
   public void addCarAtPosition(Car car, int block) {
     carsByLocation[block] = car;
+  }
+  
+  public Car[] getCarsByLocation() {
+    return Arrays.copyOf(carsByLocation, carsByLocation.length);
   }
 
   public List<Car> getCars() {

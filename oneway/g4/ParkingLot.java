@@ -35,6 +35,14 @@ public class ParkingLot {
     cars.addAll(rightbound);
     return cars;
   }
+  
+  public int getLeftCarCount() {
+    return leftbound.size();
+  }
+  
+  public int getRightCarCount() {
+    return rightbound.size();
+  }
 
   public ParkingLot copy() {
     ParkingLot newLot = new ParkingLot(this.capacity);
