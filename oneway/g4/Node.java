@@ -162,6 +162,14 @@ public class Node implements Comparable<Node> {
     return fail;
   }
   
+  public void printNode() {
+    for(int i = 0; i < lots.length; i++) {
+      System.out.println("{lots[" + i +"]:\n\tLeftbound: " + lots[i].getLeftCarCount() + "\n\tRightbound: " + lots[i].getRightCarCount() + "}");
+      if (i == lots.length - 1) { break; }
+      System.out.println("{segments[" + i + "]:\n\t" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
+    }
+  }
+  
   public double f() {
     return g() + h();
   }

@@ -56,9 +56,6 @@ public class ParkingLot {
   }
 
   /**
-   * 
-   * @param leftSegment
-   * @param rightSegment
    * @return true if this parking lot has overflowed, false otherwise.
    */
   public boolean unparkCars(Segment leftSegment, Segment rightSegment) {
