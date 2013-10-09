@@ -152,18 +152,66 @@ public class Node implements Comparable<Node> {
     }
   }
 
-  // TODO: Should return false if overflows are guaranteed in the future
+  // return false if overflows are guaranteed in the future
   private boolean noFutureOverflows() {
+
+    for(int i = 1; i<lots.length-1; i++)
+    {
+      int lcount = 0,rcount = 0;
+      Car[] cl = new Car[segments[i-1].getLength()];
+      Car[] cr = new Car[segments[i].getLength()];
+
+      cl = segments[i-1].getCarsByLocation();
+      cr = segments[i].getCarsByLocation();
+
+      for(int j =0; j < cl.length; j++) {
+        if(cl[j]!=null && cl[j].isRightbound()) {
+          lcount++;
+        }
+      }
+
+      for(int k =0; k < cr.length; k++) {
+        if(cr[k]!=null && cr[k].isLeftbound()) {
+          rcount++;
+        }
+      }
+
+      if(lots[i].getLeftCarCount() + lots[i].getRightCarCount() + lcount + rcount > lots[i].getCapacity()) {
+        return false;
+      }
+    }    
+
     return true;
   }
 
-  // TODO: Should return false if crashes are guaranteed in the future
+  // return false if crashes are guaranteed in the future
   private boolean noFutureCrashes() {
-    if (segments[0].isRightGreen() && segments[0].anyCarsInDir(Direction.LEFT))
-      return false;
-    if (segments[segments.length-1].isLeftGreen() && segments[segments.length-1].anyCarsInDir(Direction.RIGHT))
-      return false;
+    for(int i = 0;i < segments.length; i++) {
+      boolean left = false, right = false;
+      Car[] c = new Car[segments[i].getLength()];
+      c = segments[i].getCarsByLocation();
+
+      if(segments[i].isLeftGreen() && segments[i].isRightGreen()) {
+        return false;
+      }
+      for(int j =0; j < c.length; j++) {
+        if(c[j] != null && c[j].isRightbound()) {
+            right = true;
+        }
+      }
+      for(int k =0; k < c.length; k++) {
+        if(c[k] != null && c[k].isLeftbound()) { 
+            left = true;
+        }
+      }
+
+
+      if(right && left)
+        return false;
+
+    }
     return true;
+
   }
 
   /**

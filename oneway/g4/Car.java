@@ -18,6 +18,10 @@ public class Car {
   public boolean isRightbound() {
     return dir == Direction.RIGHT;
   }
+  
+  public boolean isLeftbound() {
+    return dir == Direction.LEFT;
+  }
 
   public void setComplete(int currentTime) {
     complete = true;

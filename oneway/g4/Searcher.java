@@ -16,15 +16,15 @@ public class Searcher {
 
     while (open.size() != 0){
       Node n = open.poll();
-      System.out.println(n.allCars.size());
+//      System.out.println(n.allCars.size());
 
       if (isGoal(n)) {
-        System.out.println("Found Goal");
-        System.out.println(n.allCars.size());
+//        System.out.println("Found Goal");
+//        System.out.println(n.allCars.size());
         return firstStepInPath(n);
       }
       ArrayList<Node> children = n.successors();
-      System.out.println("Open: " + open.size() + " closed: " + closed.size() + " branch: " + children.size());
+//      System.out.println("Open: " + open.size() + " closed: " + closed.size() + " branch: " + children.size());
       for (int i = 0; i < children.size(); i++){
         Node child = children.get(i);
         // TODO: Keep mirrored set of open to have fast lookups
