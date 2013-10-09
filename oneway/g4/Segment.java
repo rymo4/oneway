@@ -31,7 +31,7 @@ public class Segment {
   public void addCarAtPosition(Car car, int block) {
     carsByLocation[block] = car;
   }
-  
+
   public Car[] getCarsByLocation() {
     return Arrays.copyOf(carsByLocation, carsByLocation.length);
   }
@@ -44,6 +44,13 @@ public class Segment {
       }
     }
     return cars;
+  }
+
+  public boolean anyCarsInDir(Direction dir){
+    for (Car c : getCars()){
+      if (c.dir == dir) return true;
+    }
+    return false;
   }
   
   public Segment copy() {

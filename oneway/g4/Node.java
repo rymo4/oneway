@@ -103,13 +103,28 @@ public class Node implements Comparable<Node> {
     ArrayList<Node> children = new ArrayList<Node>();
 
     // max is the maximum number of light permutations
-    int max = (int) Math.pow(2, segments.length * 2);
+    int max;
+    boolean keepEndsRed = false;
+    if (segments[0].anyCarsInDir(Direction.LEFT) || segments[segments.length-1].anyCarsInDir(Direction.RIGHT)){
+      max = (int) Math.pow(2, (segments.length - 1) * 2);
+      keepEndsRed = true;
+    }
+    else {
+      max = (int) Math.pow(2, segments.length * 2);
+    }
+
     for(int i = 0; i < max; i++) {
 
       // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
-      for (int j = 0; j < lights.length; j++) {
+      int start = 0;
+      int end = lights.length;
+      if (keepEndsRed){
+        start = 1;
+        end = lights.length - 1;
+      }
+      for (int j = start; j < end; j++) {
         lights[j] = binaryLightRepresentation % 2 == 0;
         binaryLightRepresentation = binaryLightRepresentation >> 1;
       }
