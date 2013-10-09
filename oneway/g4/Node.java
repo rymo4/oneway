@@ -15,21 +15,21 @@ public class Node implements Comparable<Node> {
   private static final int LENGTHS_PER_SECOND = 4;
   private Segment[] segments;
   private ParkingLot[] lots;
-  private ArrayList<Car> allCars;
-  private Node parent = null;
+  public ArrayList<Car> allCars;
+  public Node parent = null;
   private int currentTime;
   private int m = 0;
-  
+
   // Initialize a Node from Simulator information
   public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
-    Parking[] left, Parking[] right, int[] capacities, boolean[] llights, 
+    Parking[] left, Parking[] right, int[] capacities, boolean[] llights,
     boolean[] rlights){
-    
+
     currentTime = time;
-    
+
     // Initialize the allCars array
     allCars = new ArrayList<Car>();
-    
+
     // Create proper number of parking lots and fill with cars
     lots = new ParkingLot[nSegments+1];
     for (int i = 0; i <= nSegments; i++) {
@@ -37,7 +37,7 @@ public class Node implements Comparable<Node> {
       addCarsToParkingLot(left[i], lots[i], Direction.LEFT);
       addCarsToParkingLot(right[i], lots[i], Direction.RIGHT);
     }
-    
+
     // Create proper number of segments
     segments = new Segment[nSegments];
     for (int i = 0; i < nSegments; i++) {
@@ -47,23 +47,23 @@ public class Node implements Comparable<Node> {
     // Decrement m by 1 because if a car is born facing a green light it starts
     // on that road segment instead of in the parking lot.
     m--;
-    
+
     // Place the movingCars on the segments
     for(MovingCar movingCar : movingCars) {
       Direction dir = movingCar.dir > 0 ? Direction.RIGHT : Direction.LEFT;
       Segment segment = segments[movingCar.segment];
       Car car = new Car(movingCar.startTime, dir);
-      
+
       allCars.add(car);
       segment.addCarAtPosition(car, movingCar.block);
     }
   }
-  
+
   private Node(Node node) {
     currentTime = node.currentTime;
     m = node.m;
     allCars = new ArrayList<Car>();
-    
+
     // Copy the parking lots and add their cars the arrays
     lots = new ParkingLot[node.lots.length];
     for (int i = 0; i < lots.length; i++) {
@@ -73,7 +73,7 @@ public class Node implements Comparable<Node> {
         allCars.add(c);
       }
     }
-    
+
     segments = new Segment[node.segments.length];
     for (int i = 0; i < segments.length; i++) {
       segments[i] = node.segments[i].copy();
@@ -82,14 +82,14 @@ public class Node implements Comparable<Node> {
         allCars.add(c);
       }
     }
-    
+
     for (Car c : node.allCars) {
       if (c.isComplete()) {
         allCars.add(c);
       }
     }
   }
-  
+
   private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot, Direction dir) {
     if (cars == null) { return; }
     for (Integer carStartTime : cars) {
@@ -101,11 +101,11 @@ public class Node implements Comparable<Node> {
 
   public ArrayList<Node> successors() {
     ArrayList<Node> children = new ArrayList<Node>();
-    
+
     // max is the maximum number of light permutations
     int max = (int) Math.pow(2, segments.length * 2);
     for(int i = 0; i < max; i++) {
-      
+
       // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
@@ -113,7 +113,7 @@ public class Node implements Comparable<Node> {
         lights[j] = binaryLightRepresentation % 2 == 0;
         binaryLightRepresentation = binaryLightRepresentation >> 1;
       }
-      
+
       //Create the child, test it out, and keep it if its good
       Node child = new Node(this);
       child.setLights(lights);
@@ -121,12 +121,13 @@ public class Node implements Comparable<Node> {
       if(child.playTurn() == false
           && child.noFutureCrashes()
           && child.noFutureOverflows()) {
+        child.parent = this;
         children.add(child);
       }
     }
     return children;
   }
-  
+
   private void setLights(boolean[] lights) {
     int nSegments = segments.length;
     for(int i = 0; i < nSegments; i++) {
@@ -160,11 +161,11 @@ public class Node implements Comparable<Node> {
       Segment rightSegment = i < segments.length ? segments[i] : null;
       fail = fail || lots[i].unparkCars(leftSegment, rightSegment);
     }
-    lots[0].removeCars(Direction.LEFT, currentTime);
-    lots[lots.length-1].removeCars(Direction.RIGHT, currentTime);
+    lots[0].removeCars(Direction.LEFT, currentTime, this);
+    lots[lots.length-1].removeCars(Direction.RIGHT, currentTime, this);
     return fail;
   }
-  
+
   public void printNode() {
     System.out.println("{F: " + f() + "}");
     for(int i = 0; i < lots.length; i++) {
@@ -173,16 +174,16 @@ public class Node implements Comparable<Node> {
       System.out.println("{segments[" + i + "]:\n\t" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
     }
   }
-  
+
   public double f() {
     return g() + h();
   }
 
   // Path cost until this point
-  private double g() {
+  public double g() {
     double cost = 0.0;
     // Sum cost of each car
-    for (Car car : allCars) {      
+    for (Car car : allCars) {
       if (car.isComplete()) {
         int latency = car.getLatency();
         cost += cost(latency);
@@ -197,8 +198,8 @@ public class Node implements Comparable<Node> {
   private double h() {
     double totalCost = 0;
     int totalDistance = m + 1;
-    
     int partDistance = 0;
+
     for (int i = 0; i < lots.length; i++) {
       // Calculate the expected cost of the segment
       // Skip segment calculation if at index 0.
@@ -226,7 +227,7 @@ public class Node implements Comparable<Node> {
       for (Car c : l.getCars()) {
         int expectedFinish;
         if (c.dir == Direction.LEFT) {
-          expectedFinish = currentTime + partDistance; 
+          expectedFinish = currentTime + partDistance;
         }
         else {
           expectedFinish = currentTime + (totalDistance - partDistance);
@@ -234,14 +235,14 @@ public class Node implements Comparable<Node> {
         totalCost += cost(expectedFinish - c.startTime);
       }
     }
-    
+
     return totalCost;
   }
-  
+
   private double cost(int latency) {
     return (latency * Math.log10(latency)) - (((double) m) * Math.log10(m));
   }
-  
+
   @Override
   public int compareTo(Node other) {
     return (int) Math.signum(this.f() - other.f());
