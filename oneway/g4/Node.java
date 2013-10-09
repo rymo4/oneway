@@ -105,7 +105,9 @@ public class Node implements Comparable<Node> {
     // max is the maximum number of light permutations
     int max;
     boolean keepEndsRed = false;
-    if (segments[0].anyCarsInDir(Direction.LEFT) || segments[segments.length-1].anyCarsInDir(Direction.RIGHT)){
+    boolean carsExiting = segments[0].anyCarsInDir(Direction.LEFT);
+    carsExiting = carsExiting || segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
+    if (carsExiting) {
       max = (int) Math.pow(2, (segments.length - 1) * 2);
       keepEndsRed = true;
     }
@@ -114,7 +116,6 @@ public class Node implements Comparable<Node> {
     }
 
     for(int i = 0; i < max; i++) {
-
       // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
@@ -158,6 +159,10 @@ public class Node implements Comparable<Node> {
 
   // TODO: Should return false if crashes are guaranteed in the future
   private boolean noFutureCrashes() {
+    if (segments[0].isRightGreen() && segments[0].anyCarsInDir(Direction.LEFT))
+      return false;
+    if (segments[segments.length-1].isLeftGreen() && segments[segments.length-1].anyCarsInDir(Direction.RIGHT))
+      return false;
     return true;
   }
 
