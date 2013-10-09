@@ -1,9 +1,10 @@
 package oneway.g4;
 
+import java.util.Collections;
+import java.util.List;
+
 import oneway.sim.MovingCar;
 import oneway.sim.Parking;
-
-import java.util.*;
 
 public class Player extends oneway.sim.Player
 {
@@ -28,13 +29,12 @@ public class Player extends oneway.sim.Player
       currentTime++;
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
-      /*
       List<Node> children = node.successors();
       Collections.sort(children);
       Node choice = children.get(0);
-      */
+//      choice.printNode();
 
-      Node choice = new Searcher().best(node);
+//      Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();

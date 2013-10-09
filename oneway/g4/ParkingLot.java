@@ -59,20 +59,28 @@ public class ParkingLot {
    *
    * @param leftSegment
    * @param rightSegment
-   * @return true if this parking lot has overflowed, false otherwise.
+   * @return true if this parking lot has overflowed or caused a crash, false otherwise.
    */
   public boolean unparkCars(Segment leftSegment, Segment rightSegment) {
     if (leftSegment != null // There's a left segment 
         && leftbound.size() > 0 // There are parked cars waiting to move left
-        && leftSegment.isLeftGreen() // The leftbound light is green
-        && leftSegment.firstTwoClear(Direction.LEFT)) { // There is room for another car
-      leftSegment.addCarAtPosition(leftbound.remove(), leftSegment.getLength() - 1);
+        && leftSegment.isLeftGreen()) { // The leftbound light is green
+      if (leftSegment.firstTwoClear(Direction.LEFT)) { // There is room for another car
+        leftSegment.addCarAtPosition(leftbound.remove(), leftSegment.getLength() - 1);
+      }
+      else {
+        return true;
+      }
     }
     if (rightSegment != null
         && rightbound.size() > 0
-        && rightSegment.isRightGreen()
-        && rightSegment.firstTwoClear(Direction.RIGHT)) {
-      rightSegment.addCarAtPosition(rightbound.remove(), 0);
+        && rightSegment.isRightGreen()) {
+        if (rightSegment.firstTwoClear(Direction.RIGHT)) {
+          rightSegment.addCarAtPosition(rightbound.remove(), 0);
+        }
+        else {
+          return true;
+        }
     }
     return rightbound.size() + leftbound.size() > capacity;
   }

@@ -12,7 +12,6 @@ import java.util.*;
 */
 
 public class Node implements Comparable<Node> {
-  private static final int LENGTHS_PER_SECOND = 4;
   private Segment[] segments;
   private ParkingLot[] lots;
   public ArrayList<Car> allCars;
