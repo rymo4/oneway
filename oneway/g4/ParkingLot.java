@@ -56,7 +56,7 @@ public class ParkingLot {
   }
 
   /**
-   * 
+   *
    * @param leftSegment
    * @param rightSegment
    * @return true if this parking lot has overflowed, false otherwise.
@@ -77,15 +77,19 @@ public class ParkingLot {
     return rightbound.size() + leftbound.size() > capacity;
   }
 
-  public void removeCars(Direction dir, int currentTime) {
+  public void removeCars(Direction dir, int currentTime, Node n) {
     if (dir == Direction.RIGHT) {
-      while(rightbound.size() > 0) {
-        rightbound.remove().setComplete(currentTime);
+      while (rightbound.size() > 0) {
+        Car c = rightbound.remove();
+        c.setComplete(currentTime);
+        n.allCars.remove(c);
       }
     }
     else {
-      while(leftbound.size() > 0) {
-        leftbound.remove().setComplete(currentTime);
+      while (leftbound.size() > 0) {
+        Car c = leftbound.remove();
+        c.setComplete(currentTime);
+        n.allCars.remove(c);
       }
     }    
   }

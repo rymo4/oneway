@@ -15,8 +15,8 @@ public class Node implements Comparable<Node> {
   private static final int LENGTHS_PER_SECOND = 4;
   private Segment[] segments;
   private ParkingLot[] lots;
-  private ArrayList<Car> allCars;
-  private Node parent = null;
+  public ArrayList<Car> allCars;
+  public Node parent = null;
   private int currentTime;
   private int m = 0;
 
@@ -118,6 +118,7 @@ public class Node implements Comparable<Node> {
       if(child.playTurn() == false
           && child.noFutureCrashes()
           && child.noFutureOverflows()) {
+        child.parent = this;
         children.add(child);
       }
     }
@@ -157,8 +158,8 @@ public class Node implements Comparable<Node> {
       Segment rightSegment = i < segments.length ? segments[i] : null;
       fail = fail || lots[i].unparkCars(leftSegment, rightSegment);
     }
-    lots[0].removeCars(Direction.LEFT, currentTime);
-    lots[lots.length-1].removeCars(Direction.RIGHT, currentTime);
+    lots[0].removeCars(Direction.LEFT, currentTime, this);
+    lots[lots.length-1].removeCars(Direction.RIGHT, currentTime, this);
     return fail;
   }
 
@@ -167,7 +168,7 @@ public class Node implements Comparable<Node> {
   }
 
   // Path cost until this point
-  private double g() {
+  public double g() {
     double cost = 0.0;
     // Sum cost of each car
     for (Car car : allCars) {

@@ -13,9 +13,9 @@ public class Player extends oneway.sim.Player
 
     public void init(int nsegments, int[] nblocks, int[] capacity)
     {
-        this.nsegments = nsegments;
-        this.nblocks = nblocks;
-        this.capacity = capacity.clone();
+      this.nsegments = nsegments;
+      this.nblocks = nblocks;
+      this.capacity = capacity.clone();
     }
 
 
@@ -28,13 +28,9 @@ public class Player extends oneway.sim.Player
       currentTime++;
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
-      List<Node> children = node.successors();
-      Collections.sort(children);
-      Node choice = children.get(0);
-      for (Node n : children) {
-        System.out.print(n.f() + " ");
-      }
-      System.out.println();
+
+      Node choice = Searcher.best(node);
+
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();
       for(int i = 0; i < nsegments; i++) {
