@@ -70,26 +70,40 @@ public class Segment {
         if (car.isRightbound()) {
           if (i == carsByLocation.length - 1) {
             rightLot.add(car);
+            carsByLocation[i] = null;
           }
-          else if (carsByLocation[i+1] != null && !carsByLocation[i+1].isRightbound()) { 
+          else if ((i + 1 < carsByLocation.length 
+              && carsByLocation[i+1] != null 
+              && !carsByLocation[i+1].isRightbound())
+              || (i + 2 < carsByLocation.length
+              && carsByLocation[i+2] != null
+              && !carsByLocation[i+2].isRightbound())
+              ) { 
             return true; 
           }
           else {
             carsByLocation[i+1] = car;
+            carsByLocation[i] = null;
+            i++;
           }
         }
         else {
           if (i == 0) {
             leftLot.add(car);
           }
-          else if (carsByLocation[i-1] != null && carsByLocation[i-1].isRightbound()) {
+          else if ((i - 1 >= 0 
+              && carsByLocation[i-1] != null 
+              && carsByLocation[i-1].isRightbound())
+              || (i - 2 >= 0
+              && carsByLocation[i-2] != null
+              && carsByLocation[i-2].isRightbound())) {
             return true;
           }
           else {
             carsByLocation[i-1] = car;
           }
+          carsByLocation[i] = null;
         }
-        carsByLocation[i] = null;
       }
     }
     return false;

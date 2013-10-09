@@ -31,4 +31,16 @@ public class Car {
   public boolean isComplete() {
     return complete;
   }
+  
+  public String toString() {
+    String retString = "";
+    if (dir == Direction.LEFT) {
+      retString += "<";
+    }
+    retString += startTime;
+    if (dir == Direction.RIGHT) {
+      retString += ">";
+    }
+    return retString;
+  }
 }

@@ -44,6 +44,9 @@ public class Node implements Comparable<Node> {
       segments[i] = new Segment(lengths[i], llights[i], rlights[i]);
       m += lengths[i];
     }
+    // Decrement m by 1 because if a car is born facing a green light it starts
+    // on that road segment instead of in the parking lot.
+    m--;
     
     // Place the movingCars on the segments
     for(MovingCar movingCar : movingCars) {
@@ -162,6 +165,15 @@ public class Node implements Comparable<Node> {
     return fail;
   }
   
+  public void printNode() {
+    System.out.println("{F: " + f() + "}");
+    for(int i = 0; i < lots.length; i++) {
+      System.out.println("{lots[" + i +"]:\n\tLeftbound: " + lots[i].getLeftCarCount() + "\n\tRightbound: " + lots[i].getRightCarCount() + "}");
+      if (i == lots.length - 1) { break; }
+      System.out.println("{segments[" + i + "]:\n\t" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
+    }
+  }
+  
   public double f() {
     return g() + h();
   }
@@ -184,10 +196,31 @@ public class Node implements Comparable<Node> {
   // to get optimal weights
   private double h() {
     double totalCost = 0;
-    int totalDistance = m;
+    int totalDistance = m + 1;
     
     int partDistance = 0;
     for (int i = 0; i < lots.length; i++) {
+      // Calculate the expected cost of the segment
+      // Skip segment calculation if at index 0.
+      if (i != 0) {  
+        Segment s = segments[i-1];
+        Car[] cars = s.getCarsByLocation();
+        for (int segDistance = 0; segDistance < cars.length; segDistance++) {
+          if (cars[segDistance] != null) {
+            int expectedFinish;
+            if (cars[segDistance].dir == Direction.LEFT) {
+              expectedFinish = currentTime + segDistance + partDistance;
+            }
+            else {
+              expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
+            }
+            totalCost += cost(expectedFinish - cars[segDistance].startTime);
+          }
+        }
+        
+        partDistance += s.getLength();
+      }
+      
       // Calculate the expected cost of the lot
       ParkingLot l = lots[i];
       for (Car c : l.getCars()) {
@@ -200,26 +233,6 @@ public class Node implements Comparable<Node> {
         }
         totalCost += cost(expectedFinish - c.startTime);
       }
-      
-      // Calculate the expected cost of the segment
-      // Skip segment calculation if at index 0.
-      if (i == 0) { continue; } 
-      Segment s = segments[i-1];
-      Car[] cars = s.getCarsByLocation();
-      for (int segDistance = 0; segDistance < cars.length; segDistance++) {
-        if (cars[segDistance] != null) {
-          int expectedFinish;
-          if (cars[segDistance].dir == Direction.LEFT) {
-            expectedFinish = currentTime + segDistance + partDistance;
-          }
-          else {
-            expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
-          }
-          totalCost += cost(expectedFinish - cars[segDistance].startTime);
-        }
-      }
-      
-      partDistance += s.getLength();
     }
     
     return totalCost;
