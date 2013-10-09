@@ -29,7 +29,7 @@ public class Player extends oneway.sim.Player
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
 
-      Node choice = Searcher.best(node);
+      Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();
