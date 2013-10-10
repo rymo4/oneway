@@ -158,12 +158,12 @@ public class Node implements Comparable<Node> {
   private void setLights(boolean[] lights) {
     int nSegments = segments.length;
     for(int i = 0; i < nSegments; i++) {
-      System.out.print(" l:" + lights[i]);
-      System.out.print(" r:" + lights[i+nSegments]);
+      //System.out.print(" l:" + lights[i]);
+      //System.out.print(" r:" + lights[i+nSegments]);
       segments[i].setLight(Direction.LEFT, lights[i]);
       segments[i].setLight(Direction.RIGHT, lights[i+nSegments]);
     }
-    System.out.println();
+    //System.out.println();
   }
 
   // return false if overflows are guaranteed in the future
