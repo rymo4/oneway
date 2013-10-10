@@ -32,6 +32,7 @@ public class Player extends oneway.sim.Player
 
       List<Node> children = node.successors();
       Collections.sort(children);
+      if (children.size() == 0) return;
       Node choice = children.get(0);
 
 
