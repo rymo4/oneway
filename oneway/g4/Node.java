@@ -18,6 +18,7 @@ public class Node implements Comparable<Node> {
   public Node parent = null;
   private int currentTime;
   private int m = 0;
+  public int carsFinished = 0;
 
   // Initialize a Node from Simulator information
   public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
@@ -97,34 +98,40 @@ public class Node implements Comparable<Node> {
       lot.add(car);
     }
   }
-
   public ArrayList<Node> successors() {
     ArrayList<Node> children = new ArrayList<Node>();
 
     // max is the maximum number of light permutations
-    int max;
     boolean keepEndsRed = false;
-    boolean carsExiting = segments[0].anyCarsInDir(Direction.LEFT);
-    carsExiting = carsExiting || segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
-    if (carsExiting) {
-      max = (int) Math.pow(2, (segments.length - 1) * 2);
-      keepEndsRed = true;
+    boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
+    boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
+    int numLights = segments.length * 2;
+
+    int start = 0;
+    int end = numLights - 1;
+
+    if (carsExitingLeft){
+      numLights--;
+      start++;
     }
-    else {
-      max = (int) Math.pow(2, segments.length * 2);
+    if (carsExitingRight){
+      numLights--;
+      end--;
     }
+
+    int max = (int) Math.pow(2, numLights);
 
     for(int i = 0; i < max; i++) {
       // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
-      int start = 0;
-      int end = lights.length;
-      if (keepEndsRed){
-        start = 1;
-        end = lights.length - 1;
-      }
-      for (int j = start; j < end; j++) {
+      int firstLight = 0;
+      int lastLight  = lights.length - 1;
+
+      if (carsExitingLeft) firstLight++;
+      if (carsExitingRight) lastLight--;
+
+      for (int j = firstLight; j <= lastLight; j++) {
         lights[j] = binaryLightRepresentation % 2 == 0;
         binaryLightRepresentation = binaryLightRepresentation >> 1;
       }

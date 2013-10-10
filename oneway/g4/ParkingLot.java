@@ -90,16 +90,16 @@ public class ParkingLot {
       while (rightbound.size() > 0) {
         Car c = rightbound.remove();
         c.setComplete(currentTime);
-        n.allCars.remove(c);
+        n.carsFinished++;
       }
     }
     else {
       while (leftbound.size() > 0) {
         Car c = leftbound.remove();
         c.setComplete(currentTime);
-        n.allCars.remove(c);
+        n.carsFinished++;
       }
-    }    
+    }
   }
 
   public int getCapacity() {

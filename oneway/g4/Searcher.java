@@ -10,21 +10,32 @@ public class Searcher {
   private PriorityBlockingQueue<Node> open = new PriorityBlockingQueue<Node>();
   private Set<Node> closed = new HashSet<Node>();
   private Set<Node> openCopy = new HashSet<Node>();
+  private Node bestSoFar;
+  private double bestScoreSoFar = Double.MAX_VALUE;
 
   public Node best(Node root){
     open.add(root);
 
     while (open.size() != 0){
       Node n = open.poll();
+
+      if (n.f() < bestScoreSoFar){
+        bestSoFar = n;
+        bestScoreSoFar = n.f();
+        System.out.println();
+        bestSoFar.printNode();
+      }
 //      System.out.println(n.allCars.size());
+//
+      if (outOfTime()) return firstStepInPath(bestSoFar);
 
       if (isGoal(n)) {
-//        System.out.println("Found Goal");
-//        System.out.println(n.allCars.size());
+        System.out.println("Found Goal");
+        System.out.println(n.allCars.size());
         return firstStepInPath(n);
       }
       ArrayList<Node> children = n.successors();
-//      System.out.println("Open: " + open.size() + " closed: " + closed.size() + " branch: " + children.size());
+      //System.out.println("Open: " + open.size() + " closed: " + closed.size() + " branch: " + children.size());
       for (int i = 0; i < children.size(); i++){
         Node child = children.get(i);
         // TODO: Keep mirrored set of open to have fast lookups
@@ -49,8 +60,12 @@ public class Searcher {
     return null;
   }
 
+  private boolean outOfTime(){
+    return System.currentTimeMillis() - startTime >= 1000;
+  }
+
   private boolean isGoal(Node n){
-    return n.allCars.size() == 0 || System.currentTimeMillis() - startTime >= 1000;
+    return n.allCars.size() == n.carsFinished;
   }
 
   // x -> x -> x -> x
