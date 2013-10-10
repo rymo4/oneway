@@ -102,11 +102,10 @@ public class Node implements Comparable<Node> {
     ArrayList<Node> children = new ArrayList<Node>();
 
     // max is the maximum number of light permutations
-    boolean keepEndsRed = false;
     boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
     boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
-    int numLights = segments.length * 2;
 
+    int numLights = segments.length * 2;
     int start = 0;
     int end = numLights - 1;
 
@@ -126,14 +125,20 @@ public class Node implements Comparable<Node> {
       int binaryLightRepresentation = i;
       boolean[] lights = new boolean[segments.length * 2];
       int firstLight = 0;
-      int lastLight  = lights.length - 1;
+      int lastLight  = lights.length;
 
-      if (carsExitingLeft) firstLight++;
-      if (carsExitingRight) lastLight--;
+      int skipLeft = -1;
+      int skipRight = -1;
+      if (carsExitingLeft) skipLeft = 0;
+      if (carsExitingRight) skipRight = (2* segments.length) - 1;
 
-      for (int j = firstLight; j <= lastLight; j++) {
-        lights[j] = binaryLightRepresentation % 2 == 0;
-        binaryLightRepresentation = binaryLightRepresentation >> 1;
+      for (int j = 0; j < lights.length ; j++) {
+        // [1 0 0 0 | 0 0 ]
+        if (skipLeft == -1 || skipRight == -1){
+          lights[j] = binaryLightRepresentation % 2 == 0;
+          binaryLightRepresentation = binaryLightRepresentation >> 1;
+          
+        }
       }
 
       //Create the child, test it out, and keep it if its good
@@ -153,9 +158,12 @@ public class Node implements Comparable<Node> {
   private void setLights(boolean[] lights) {
     int nSegments = segments.length;
     for(int i = 0; i < nSegments; i++) {
+      System.out.print(" l:" + lights[i]);
+      System.out.print(" r:" + lights[i+nSegments]);
       segments[i].setLight(Direction.LEFT, lights[i]);
       segments[i].setLight(Direction.RIGHT, lights[i+nSegments]);
     }
+    System.out.println();
   }
 
   // return false if overflows are guaranteed in the future

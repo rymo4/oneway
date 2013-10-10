@@ -34,6 +34,8 @@ public class Player extends oneway.sim.Player
       Collections.sort(children);
       Node choice = children.get(0);
 
+
+
       //Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
