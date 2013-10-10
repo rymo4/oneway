@@ -256,7 +256,7 @@ public class Node implements Comparable<Node> {
   public double f() {
     double g = g();
     double h = h();
-    System.out.println("g: " + g + ", h: " + h);
+    //System.out.println("g: " + g + ", h: " + h);
     return g + h;
   }
 
@@ -266,7 +266,6 @@ public class Node implements Comparable<Node> {
     // Sum cost of each car
     for (Car car : allCars) {
       int latency = car.getLatency();
-      System.out.println(latency);
       cost += cost(latency);
     }
     return cost;
