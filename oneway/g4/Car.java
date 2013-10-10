@@ -5,6 +5,8 @@ public class Car {
 	Direction dir;
 	boolean complete = false;
 	int latency = 0;
+  double g = 0;
+  double h = 0;
 	
 	public Car(int startTime, Direction dir) {
 		this.startTime = startTime;
@@ -40,7 +42,7 @@ public class Car {
   public boolean isComplete() {
     return complete;
   }
-  
+
   public String toString() {
     String retString = "";
     if (dir == Direction.LEFT) {

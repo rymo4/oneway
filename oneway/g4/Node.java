@@ -261,29 +261,37 @@ public class Node implements Comparable<Node> {
     }
   }
 
-  public double f() {
-    double g = g();
-    double h = h();
-    //System.out.println("g: " + g + ", h: " + h);
-    return g + h;
-  }
-
-  // Path cost until this point
-  public double g() {
+  public double g(){
+    fillG();
     double cost = 0.0;
-    // Sum cost of each car
-    for (Car car : allCars) {
-      int latency = car.getLatency();
-      cost += cost(latency);
+    for (Car c: allCars){
+      cost += cost(c.g);
     }
     return cost;
   }
 
-  // Estimate cost from here to the end
-  // Maybe use a feature vector of different heuristics and later train
-  // to get optimal weights
-  private double h() {
-    double totalCost = 0;
+  public double f() {
+    fillG();
+    fillH();
+    double cost = 0.0;
+    for (Car c: allCars){
+      cost += cost(c.g + c.h);
+    }
+    //System.out.println("g: " + g + ", h: " + h);
+    return cost;
+  }
+
+  // Path cost until this point
+  public void fillG() {
+    double cost = 0.0;
+    // Sum cost of each car
+    for (Car car : allCars) {
+      int latency = car.getLatency();
+      car.g = latency;
+    }
+  }
+
+  private void fillH() {
     int totalDistance = m + 1;
     int partDistance = 0;
 
@@ -302,13 +310,11 @@ public class Node implements Comparable<Node> {
             else {
               expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
             }
-            totalCost += cost(expectedFinish - cars[segDistance].startTime);
+            cars[segDistance].h = (expectedFinish - cars[segDistance].startTime);
           }
         }
-        
         partDistance += s.getLength();
       }
-      
       // Calculate the expected cost of the lot
       ParkingLot l = lots[i];
       for (Car c : l.getCars()) {
@@ -319,14 +325,12 @@ public class Node implements Comparable<Node> {
         else {
           expectedFinish = currentTime + (totalDistance - partDistance);
         }
-        totalCost += cost(expectedFinish - c.startTime);
+        c.h = (expectedFinish - c.startTime);
       }
     }
-
-    return totalCost;
   }
 
-  private double cost(int latency) {
+  private double cost(double latency) {
     return (latency * Math.log10(latency)) - (((double) m) * Math.log10(m));
   }
 
