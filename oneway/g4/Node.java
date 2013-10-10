@@ -226,6 +226,10 @@ public class Node implements Comparable<Node> {
    */
   private boolean playTurn() {
     currentTime += 1;
+    for (Car c : allCars) {
+      c.updateLatency(currentTime);
+    }
+
     boolean fail = false;
     for (int i = 0; i < segments.length; i++) {
       fail = fail || segments[i].moveCarsForward(lots[i], lots[i+1]);
@@ -250,7 +254,10 @@ public class Node implements Comparable<Node> {
   }
 
   public double f() {
-    return g() + h();
+    double g = g();
+    double h = h();
+    System.out.println("g: " + g + ", h: " + h);
+    return g + h;
   }
 
   // Path cost until this point
@@ -258,10 +265,9 @@ public class Node implements Comparable<Node> {
     double cost = 0.0;
     // Sum cost of each car
     for (Car car : allCars) {
-      if (car.isComplete()) {
-        int latency = car.getLatency();
-        cost += cost(latency);
-      }
+      int latency = car.getLatency();
+      System.out.println(latency);
+      cost += cost(latency);
     }
     return cost;
   }
@@ -277,7 +283,7 @@ public class Node implements Comparable<Node> {
     for (int i = 0; i < lots.length; i++) {
       // Calculate the expected cost of the segment
       // Skip segment calculation if at index 0.
-      if (i != 0) {  
+      if (i != 0) {
         Segment s = segments[i-1];
         Car[] cars = s.getCarsByLocation();
         for (int segDistance = 0; segDistance < cars.length; segDistance++) {

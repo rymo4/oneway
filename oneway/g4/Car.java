@@ -25,6 +25,11 @@ public class Car {
 
   public void setComplete(int currentTime) {
     complete = true;
+    updateLatency(currentTime);
+  }
+
+  public void updateLatency(int currentTime){
+    if (complete) return;
     latency = currentTime - startTime;
   }
   
