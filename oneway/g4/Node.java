@@ -101,7 +101,6 @@ public class Node implements Comparable<Node> {
   public ArrayList<Node> successors() {
     ArrayList<Node> children = new ArrayList<Node>();
 
-    // max is the maximum number of light permutations
     boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
     boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
 
@@ -117,7 +116,8 @@ public class Node implements Comparable<Node> {
       numLights--;
       end--;
     }
-
+    
+    // max is the maximum number of light permutations
     int max = (int) Math.pow(2, numLights);
 
     for(int i = 0; i < max; i++) {
@@ -317,15 +317,19 @@ public class Node implements Comparable<Node> {
       }
       // Calculate the expected cost of the lot
       ParkingLot l = lots[i];
-      for (Car c : l.getCars()) {
+      int carsAhead = 0;
+      for (Car c : l.getLeftCars()) {
         int expectedFinish;
-        if (c.dir == Direction.LEFT) {
-          expectedFinish = currentTime + partDistance;
-        }
-        else {
-          expectedFinish = currentTime + (totalDistance - partDistance);
-        }
+        expectedFinish = currentTime + partDistance + carsAhead * 2;
         c.h = (expectedFinish - c.startTime);
+        carsAhead++;
+      }
+      carsAhead = 0;
+      for (Car c : l.getRightCars()) {
+        int expectedFinish;
+        expectedFinish = currentTime + (totalDistance - partDistance) + carsAhead * 2;
+        c.h = (expectedFinish - c.startTime);
+        carsAhead++;
       }
     }
   }
