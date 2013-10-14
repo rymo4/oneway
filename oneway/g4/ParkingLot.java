@@ -36,6 +36,14 @@ public class ParkingLot {
     return cars;
   }
   
+  public List<Car> getLeftCars() {
+    return leftbound;
+  }
+  
+  public List<Car> getRightCars() {
+    return rightbound;
+  }
+  
   public int getLeftCarCount() {
     return leftbound.size();
   }
