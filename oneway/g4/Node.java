@@ -19,6 +19,7 @@ public class Node implements Comparable<Node> {
   private int currentTime;
   private int m = 0;
   public int carsFinished = 0;
+  public int depth = 0;
 
   // Initialize a Node from Simulator information
   public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
@@ -277,6 +278,11 @@ public class Node implements Comparable<Node> {
     for (Car c: allCars){
       cost += cost(c.g + c.h);
     }
+    // This is a hack to favor greens on the ends. Because we don't
+    // generate states where incoming cars will crash, we should always favor
+    // states with greens on the sides
+    if (segments[segments.length - 1].isLeftGreen()) cost -= 0.01;
+    if (segments[0].isRightGreen()) cost -= 0.01;
     //System.out.println("g: " + g + ", h: " + h);
     return cost;
   }
