@@ -37,6 +37,7 @@ public class Node implements Comparable<Node> {
       lots[i] = new ParkingLot(capacities[i]);
       addCarsToParkingLot(left[i], lots[i], Direction.LEFT);
       addCarsToParkingLot(right[i], lots[i], Direction.RIGHT);
+      allCars.addAll(lots[i].getCars());
     }
 
     // Create proper number of segments
@@ -104,20 +105,9 @@ public class Node implements Comparable<Node> {
 
     boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
     boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
-    System.out.println("Exiting cars: " + carsExitingLeft + ", " + carsExitingRight);
+//    System.out.println("Exiting cars: " + carsExitingLeft + ", " + carsExitingRight);
 
     int numLights = segments.length * 2;
-//    int start = 0;
-//    int end = numLights - 1;
-//
-//    if (carsExitingLeft){
-//      numLights--;
-//      start++;
-//    }
-//    if (carsExitingRight){
-//      numLights--;
-//      end--;
-//    }
     
     // true lightbits are those that matter, false bits are those that don't
     // we want to set bits that don't matter to green
@@ -157,13 +147,21 @@ public class Node implements Comparable<Node> {
     // max is the maximum number of light permutations
     int max = (int) Math.pow(2, numLights);
     HashSet<Integer> combinations = new HashSet<Integer>();
+    
+    // Filter edge cases
+    int edgeMask = max - 1;
+    if (carsExitingLeft) { edgeMask -= Math.pow(2, numLights - 1); }
+    if (carsExitingRight) { edgeMask -= 1; }
+//    System.out.println(Integer.toBinaryString(edgeMask));
 
+    // Use a bit vector to find different permutations of lights
     for(int i = 0; i < max; i++) {
-      // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
       binaryLightRepresentation = binaryLightRepresentation | bitMask;
+      binaryLightRepresentation = binaryLightRepresentation & edgeMask;
       combinations.add(binaryLightRepresentation);
     }
+    
     //Go through all combinations
     for (Integer representation : combinations) {
 //      System.out.println("This combination: " + Integer.toBinaryString(representation));
@@ -173,10 +171,6 @@ public class Node implements Comparable<Node> {
         lights[j] = binaryLightRepresentation % 2 == 1;
         binaryLightRepresentation = binaryLightRepresentation >> 1;
       }
-      
-      //Set the end lights to red if necessary
-//      lights[0] = !carsExitingLeft;
-//      lights[segments.length] = !carsExitingRight; 
 
       //Create the child, test it out, and keep it if its good
       Node child = new Node(this);
@@ -309,10 +303,11 @@ public class Node implements Comparable<Node> {
   public void printNode() {
     System.out.println("{F: " + f() + "}");
     for(int i = 0; i < lots.length; i++) {
-      System.out.println("{lots[" + i +"]:\n\tLeftbound: " + lots[i].getLeftCarCount() + "\n\tRightbound: " + lots[i].getRightCarCount() + "}");
+      System.out.print("\t{<<" + lots[i].getLeftCarCount() + "-" + lots[i].getRightCarCount() + ">>}");
       if (i == lots.length - 1) { break; }
-      System.out.println("{segments[" + i + "]:\n\t" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
+      System.out.print("{" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
     }
+    System.out.println();
   }
 
   public double g(){

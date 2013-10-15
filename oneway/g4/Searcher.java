@@ -23,7 +23,6 @@ public class Searcher {
         bestSoFar = n;
         bestScoreSoFar = n.f();
         System.out.println();
-        bestSoFar.printNode();
       }
 //      System.out.println(n.allCars.size());
 //
@@ -32,7 +31,6 @@ public class Searcher {
       if (isGoal(n)) {
         System.out.println("Found Goal");
         System.out.println(n.allCars.size());
-        n.printNode();
         return firstStepInPath(n);
       }
       ArrayList<Node> children = n.successors();
@@ -76,6 +74,7 @@ public class Searcher {
       if (n.parent.parent == null) {
         return n;
       }
+      n.printNode();
       n = n.parent;
       lastN = n;
     }
