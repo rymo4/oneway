@@ -90,6 +90,8 @@ public class Node implements Comparable<Node> {
         allCars.add(c);
       }
     }
+    
+    carsFinished = node.carsFinished; 
   }
 
   private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot, Direction dir) {
@@ -302,8 +304,15 @@ public class Node implements Comparable<Node> {
 
   public void printNode() {
     System.out.println("{F: " + f() + "}");
+    System.out.print("\t");
+    for (Car c : allCars) {
+      System.out.print("{" + c.g + ", " + c.h + "} ");
+    }
+    System.out.println();
+    System.out.println("\tAll cars: " + allCars.size() + " Completed Cars: " + carsFinished);
+    System.out.print("\t");
     for(int i = 0; i < lots.length; i++) {
-      System.out.print("\t{<<" + lots[i].getLeftCarCount() + "-" + lots[i].getRightCarCount() + ">>}");
+      System.out.print("{<<" + lots[i].getLeftCarCount() + "-" + lots[i].getRightCarCount() + ">>}");
       if (i == lots.length - 1) { break; }
       System.out.print("{" + Arrays.toString(segments[i].getCarsByLocation()) + "}");
     }
@@ -323,7 +332,7 @@ public class Node implements Comparable<Node> {
     fillG();
     fillH();
     double cost = 0.0;
-    for (Car c: allCars){
+    for (Car c: allCars){ 
       cost += cost(c.g + c.h);
     }
     // This is a hack to favor greens on the ends. Because we don't
@@ -364,7 +373,7 @@ public class Node implements Comparable<Node> {
             else {
               expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
             }
-            cars[segDistance].h = (expectedFinish - cars[segDistance].startTime);
+            cars[segDistance].h = (expectedFinish - currentTime + 1);
           }
         }
         partDistance += s.getLength();
@@ -375,14 +384,14 @@ public class Node implements Comparable<Node> {
       for (Car c : l.getLeftCars()) {
         int expectedFinish;
         expectedFinish = currentTime + partDistance + carsAhead * 2;
-        c.h = (expectedFinish - c.startTime);
+        c.h = (expectedFinish - currentTime + 1);
         carsAhead++;
       }
       carsAhead = 0;
       for (Car c : l.getRightCars()) {
         int expectedFinish;
         expectedFinish = currentTime + (totalDistance - partDistance) + carsAhead * 2;
-        c.h = (expectedFinish - c.startTime);
+        c.h = (expectedFinish - currentTime + 1);
         carsAhead++;
       }
     }
@@ -411,5 +420,9 @@ public class Node implements Comparable<Node> {
       rlights[i] = segments[i].isRightGreen();
     }
     return rlights;
+  }
+  
+  public int getCurrentTime() {
+    return currentTime;
   }
 }

@@ -31,14 +31,12 @@ public class Player extends oneway.sim.Player
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
 
-      List<Node> children = node.successors();
-      Collections.sort(children);
-      if (children.size() == 0) return;
-      Node choice = children.get(0);
+//      List<Node> children = node.successors();
+//      Collections.sort(children);
+//      if (children.size() == 0) return;
+//      Node choice = children.get(0);
 
-
-
-//      Node choice = new Searcher().best(node);
+      Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();

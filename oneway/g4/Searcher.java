@@ -12,49 +12,37 @@ public class Searcher {
   private Set<Node> openCopy = new HashSet<Node>();
   private Node bestSoFar;
   private double bestScoreSoFar = Double.MAX_VALUE;
+  private int bestTime = 0;
 
   public Node best(Node root){
     open.add(root);
 
     while (open.size() != 0){
       Node n = open.poll();
+//      n.printNode();
 
-      if (n.f() < bestScoreSoFar){
+      if (n.f() < bestScoreSoFar && n.getCurrentTime() > bestTime){
         bestSoFar = n;
         bestScoreSoFar = n.f();
-        System.out.println();
+        bestTime = n.getCurrentTime();
       }
 //      System.out.println(n.allCars.size());
 //
-//      if (outOfTime()) return firstStepInPath(bestSoFar);
+      if (outOfTime()) return firstStepInPath(bestSoFar);
 
       if (isGoal(n)) {
         System.out.println("Found Goal");
         System.out.println(n.allCars.size());
         return firstStepInPath(n);
       }
+      
       ArrayList<Node> children = n.successors();
-      //System.out.println("Open: " + open.size() + " closed: " + closed.size() + " branch: " + children.size());
       for (int i = 0; i < children.size(); i++){
         Node child = children.get(i);
-        // TODO: Keep mirrored set of open to have fast lookups
-        boolean in_closed = closed.contains(child);
-        boolean in_open   = openCopy.contains(child);
-        if (in_closed || in_open){
-          if (n.g() <= child.g()) continue;
-        }
-
         child.parent = n;
-
-        if (in_closed){
-          closed.remove(child);
-        }
-        if (!in_open){
-          open.add(child);
-          openCopy.add(child);
-        }
+        open.add(child);
       }
-      closed.add(n);
+      
     }
     return null;
   }
@@ -74,7 +62,7 @@ public class Searcher {
       if (n.parent.parent == null) {
         return n;
       }
-      n.printNode();
+//      n.printNode();
       n = n.parent;
       lastN = n;
     }
