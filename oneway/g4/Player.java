@@ -48,6 +48,17 @@ public class Player extends oneway.sim.Player
 
       Node choice = new Searcher().best(node);
 
+      if (choice == null) {
+        // PREVENT DEADLOCK HERE
+        // Escape Strategy: set all lefts green, all rights red
+        for(int i = 0; i < nsegments; i++) {
+          llights[i] = true;
+          rlights[i] = false;
+        }
+
+        return;
+      }
+
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();
       for(int i = 0; i < nsegments; i++) {
