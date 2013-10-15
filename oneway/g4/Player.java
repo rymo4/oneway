@@ -39,7 +39,7 @@ public class Player extends oneway.sim.Player
       // Strategy 0: On the first turn, just let cars come in since search will
       // instantly terminate
       boolean moreThanOneRoad = left.length > 2;
-      if (moreThanOneRoad && movingCars.length == 0 && !anyParkedCars(left, right)){
+      if (moreThanOneRoad && movingCars.length == 0 && !anyParkedCars(left, right) && capacity[1] > 0){
         System.out.println("First turn with 2+ segments, so lettings cars in.");
         llights[llights.length-1] = true;
         rlights[0] = true;
