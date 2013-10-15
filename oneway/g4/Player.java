@@ -1,5 +1,6 @@
 package oneway.g4;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class Player extends oneway.sim.Player
 
 
 
-      //Node choice = new Searcher().best(node);
+//      Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
       boolean[] newRLights = choice.getRLights();

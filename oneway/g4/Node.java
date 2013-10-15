@@ -104,55 +104,99 @@ public class Node implements Comparable<Node> {
 
     boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
     boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
+    System.out.println("Exiting cars: " + carsExitingLeft + ", " + carsExitingRight);
 
     int numLights = segments.length * 2;
-    int start = 0;
-    int end = numLights - 1;
-
-    if (carsExitingLeft){
-      numLights--;
-      start++;
+//    int start = 0;
+//    int end = numLights - 1;
+//
+//    if (carsExitingLeft){
+//      numLights--;
+//      start++;
+//    }
+//    if (carsExitingRight){
+//      numLights--;
+//      end--;
+//    }
+    
+    // true lightbits are those that matter, false bits are those that don't
+    // we want to set bits that don't matter to green
+    // 1 is green, 0 is red
+    // Therefore, we want all true lightbits to not be masked, and false ones to be masked to one.
+    boolean[] lightbits = new boolean[segments.length * 2];
+    // Generate a bit mask for paths that are irrelevant
+    for (int i = 0; i < segments.length; i++) {
+      Car leftSegmentRightboundCar = null;
+      Car rightSegmentLeftboundCar = null;
+      if (i > 0) {
+        Car rightBoundCar = segments[i-1].getCarsByLocation()[segments[i-1].getLength() - 1];
+        if (rightBoundCar != null && rightBoundCar.dir == Direction.RIGHT) {
+          leftSegmentRightboundCar = rightBoundCar; 
+        }
+      }
+      if (i < segments.length - 1) {
+        Car leftBoundCar = segments[i + 1].getCarsByLocation()[0];
+        if (leftBoundCar != null && leftBoundCar.dir == Direction.LEFT) {
+          rightSegmentLeftboundCar = leftBoundCar;
+        }
+      }
+      boolean hasCarsComingFromLeft = lots[i].getRightCarCount() > 0 || leftSegmentRightboundCar != null;
+      boolean hasCarsComingFromRight = lots[i+1].getLeftCarCount() > 0 || rightSegmentLeftboundCar != null;
+      lightbits[i+segments.length] = hasCarsComingFromRight;
+      lightbits[i] = hasCarsComingFromLeft;
     }
-    if (carsExitingRight){
-      numLights--;
-      end--;
+    
+    
+    int bitMask = 0;
+    for (int i = 0; i < lightbits.length; i++) {
+      bitMask = (bitMask << 1) + (lightbits[i] ? 0 : 1);
     }
+//    System.out.println("Lightbits: " + Arrays.toString(lightbits));
+//    System.out.println("bitMask: " + Integer.toBinaryString(bitMask));
     
     // max is the maximum number of light permutations
     int max = (int) Math.pow(2, numLights);
+    HashSet<Integer> combinations = new HashSet<Integer>();
 
     for(int i = 0; i < max; i++) {
       // Use a bit vector to find different permutations of lights
       int binaryLightRepresentation = i;
+      binaryLightRepresentation = binaryLightRepresentation | bitMask;
+      combinations.add(binaryLightRepresentation);
+    }
+    //Go through all combinations
+    for (Integer representation : combinations) {
+//      System.out.println("This combination: " + Integer.toBinaryString(representation));
+      int binaryLightRepresentation = representation;
       boolean[] lights = new boolean[segments.length * 2];
-      int firstLight = 0;
-      int lastLight  = lights.length;
-
-      int skipLeft = -1;
-      int skipRight = -1;
-      if (carsExitingLeft) skipLeft = 0;
-      if (carsExitingRight) skipRight = (2* segments.length) - 1;
-
-      for (int j = 0; j < lights.length ; j++) {
-        // [1 0 0 0 | 0 0 ]
-        if (skipLeft == -1 || skipRight == -1){
-          lights[j] = binaryLightRepresentation % 2 == 0;
-          binaryLightRepresentation = binaryLightRepresentation >> 1;
-          
-        }
+      for (int j = lights.length - 1; j >= 0; j--) {
+        lights[j] = binaryLightRepresentation % 2 == 1;
+        binaryLightRepresentation = binaryLightRepresentation >> 1;
       }
+      
+      //Set the end lights to red if necessary
+//      lights[0] = !carsExitingLeft;
+//      lights[segments.length] = !carsExitingRight; 
 
       //Create the child, test it out, and keep it if its good
       Node child = new Node(this);
       child.setLights(lights);
+//      System.out.println("These lights were used: " + Arrays.toString(lights));
       child.parent = this;
-      if(child.playTurn() == false
-          && child.noFutureCrashes()
-          && child.noFutureOverflows()) {
+      boolean turnSafe = !child.playTurn();
+      boolean futureCrashSafe = child.noFutureCrashes();
+      boolean futureOverflowSafe = child.noFutureOverflows();
+      if(turnSafe && futureCrashSafe && futureOverflowSafe) {
         child.parent = this;
         children.add(child);
+//        System.out.println("No crash detected.");
       }
+      else {
+//        System.out.println(turnSafe + ", " + futureCrashSafe + ", " + futureOverflowSafe);
+      }
+//      System.out.println();
     }
+//    System.out.println("Generated " + children.size() + " children.");
     return children;
   }
 
@@ -161,8 +205,8 @@ public class Node implements Comparable<Node> {
     for(int i = 0; i < nSegments; i++) {
       //System.out.print(" l:" + lights[i]);
       //System.out.print(" r:" + lights[i+nSegments]);
-      segments[i].setLight(Direction.LEFT, lights[i]);
-      segments[i].setLight(Direction.RIGHT, lights[i+nSegments]);
+      segments[i].setLight(Direction.RIGHT, lights[i]);
+      segments[i].setLight(Direction.LEFT, lights[i+nSegments]);
     }
     //System.out.println();
   }
@@ -206,9 +250,18 @@ public class Node implements Comparable<Node> {
       Car[] c = new Car[segments[i].getLength()];
       c = segments[i].getCarsByLocation();
 
-      if(segments[i].isLeftGreen() && segments[i].isRightGreen()) {
-        return false;
-      }
+//      if (i > 0 && i < segments.length - 1) {
+//        Car incomingLeftboundCar = segments[i+1].getCarsByLocation()[0];
+//        Car incomingRightboundCar = segments[i-1].getCarsByLocation()[segments[i-1].getLength() - 1];
+//        if(segments[i].isLeftGreen() && 
+//            (lots[i+1].getLeftCarCount() > 0 
+//                || incomingLeftboundCar != null
+//                && incomingLeftboundCar.dir == Direction.LEFT)  
+//            && segments[i].isRightGreen() && 
+//              (lots[i].getRightCarCount() > 0) {
+//          return false;
+//        }
+//      }
       for(int j =0; j < c.length; j++) {
         if(c[j] != null && c[j].isRightbound()) {
             right = true;

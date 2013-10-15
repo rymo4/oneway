@@ -27,11 +27,12 @@ public class Searcher {
       }
 //      System.out.println(n.allCars.size());
 //
-      if (outOfTime()) return firstStepInPath(bestSoFar);
+//      if (outOfTime()) return firstStepInPath(bestSoFar);
 
       if (isGoal(n)) {
         System.out.println("Found Goal");
         System.out.println(n.allCars.size());
+        n.printNode();
         return firstStepInPath(n);
       }
       ArrayList<Node> children = n.successors();
