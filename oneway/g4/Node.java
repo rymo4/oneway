@@ -91,7 +91,7 @@ public class Node implements Comparable<Node> {
       }
     }
     
-    carsFinished = node.carsFinished; 
+    carsFinished = node.carsFinished;
   }
 
   private void addCarsToParkingLot(List<Integer> cars, ParkingLot lot, Direction dir) {
@@ -107,6 +107,11 @@ public class Node implements Comparable<Node> {
 
     boolean carsExitingLeft  = segments[0].anyCarsInDir(Direction.LEFT);
     boolean carsExitingRight = segments[segments.length-1].anyCarsInDir(Direction.RIGHT);
+    // detect that we prob will swap next turn, so make ends red
+    if (lots.length > 2){
+      carsExitingLeft = carsExitingLeft || !segments[1].firstClear(Direction.RIGHT);
+      carsExitingRight = carsExitingRight || !segments[segments.length-2].firstClear(Direction.LEFT);
+    }
 //    System.out.println("Exiting cars: " + carsExitingLeft + ", " + carsExitingRight);
 
     int numLights = segments.length * 2;
@@ -332,7 +337,7 @@ public class Node implements Comparable<Node> {
     fillG();
     fillH();
     double cost = 0.0;
-    for (Car c: allCars){ 
+    for (Car c: allCars){
       cost += cost(c.g + c.h);
     }
     // This is a hack to favor greens on the ends. Because we don't

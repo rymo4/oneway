@@ -36,6 +36,16 @@ public class Player extends oneway.sim.Player
 //      if (children.size() == 0) return;
 //      Node choice = children.get(0);
 
+      // Strategy 0: On the first turn, just let cars come in since search will
+      // instantly terminate
+      boolean moreThanOneRoad = left.length > 2;
+      if (moreThanOneRoad && movingCars.length == 0 && !anyParkedCars(left, right)){
+        System.out.println("First turn with 2+ segments, so lettings cars in.");
+        llights[llights.length-1] = true;
+        rlights[0] = true;
+        return;
+      }
+
       Node choice = new Searcher().best(node);
 
       boolean[] newLLights = choice.getLLights();
@@ -44,6 +54,14 @@ public class Player extends oneway.sim.Player
         llights[i] = newLLights[i];
         rlights[i] = newRLights[i];
       }
+    }
+
+    private boolean anyParkedCars(Parking[] left, Parking[] right){
+      for (int i = 0; i < left.length; i++){
+        if (left[i] != null && left[i].size() != 0) return true;
+        if (right[i] != null && right[i].size() != 0) return true;
+      }
+      return false;
     }
 
 

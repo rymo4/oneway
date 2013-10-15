@@ -116,6 +116,17 @@ public class Segment {
     return false;
   }
 
+  public boolean firstClear(Direction dir) {
+    boolean firstEmpty;
+    if (dir == Direction.LEFT) {
+      firstEmpty = carsByLocation[getLength() - 1] == null;
+    }
+    else {
+      firstEmpty = carsByLocation[0] == null;
+    }
+    return firstEmpty;
+  }
+
   public boolean firstTwoClear(Direction dir) {
     boolean firstEmpty;
     boolean secondEmpty;
