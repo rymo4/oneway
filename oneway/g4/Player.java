@@ -49,11 +49,24 @@ public class Player extends oneway.sim.Player
       Node choice = new Searcher().best(node);
 
       if (choice == null) {
-        // PREVENT DEADLOCK HERE
-        // Escape Strategy: set all lefts green, all rights red
+        // This is the DEADLOCK case
+        // Escape Strategy: set all greens in direction that has most cars morving in it
+        // and all red is the other direction
+        int leftCount = 0;
+        int rightCount = 0;
+        for (Car c : node.allCars){
+          if (c.isRightbound()){
+            rightCount++;
+          } else {
+            leftCount++;
+          }
+        }
+
+        boolean leftVal = leftCount > rightCount;
+        boolean rightVal = !leftVal;
         for(int i = 0; i < nsegments; i++) {
-          llights[i] = true;
-          rlights[i] = false;
+          llights[i] = leftVal;
+          rlights[i] = rightVal;
         }
 
         return;
