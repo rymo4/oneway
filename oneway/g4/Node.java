@@ -20,6 +20,8 @@ public class Node implements Comparable<Node> {
   private int m = 0;
   public int carsFinished = 0;
   public int depth = 0;
+  private double NOT_SET = Double.MAX_VALUE;
+  private double memoizedF = NOT_SET;
 
   // Initialize a Node from Simulator information
   public Node(int time, int nSegments, int[] lengths, MovingCar[] movingCars,
@@ -334,6 +336,9 @@ public class Node implements Comparable<Node> {
   }
 
   public double f() {
+    if (memoizedF != NOT_SET){
+      return memoizedF;
+    }
     fillG();
     fillH();
     double cost = 0.0;
@@ -346,6 +351,7 @@ public class Node implements Comparable<Node> {
     if (segments[segments.length - 1].isLeftGreen()) cost -= 0.01;
     if (segments[0].isRightGreen()) cost -= 0.01;
     //System.out.println("g: " + g + ", h: " + h);
+    memoizedF = cost;
     return cost;
   }
 
