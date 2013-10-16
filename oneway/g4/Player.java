@@ -33,8 +33,20 @@ public class Player extends oneway.sim.Player
 
       List<Node> children = node.successors();
       Collections.sort(children);
-      if (children.size() == 0) return;
+      if (children.size() == 0) {
+        System.out.println("No nodes generated");
+        for(int i = 0; i < nsegments; i++) {
+          if (!node.segments[i].anyCarsInDir(Direction.RIGHT)){
+            llights[i] = true;
+          } else {
+            llights[i] = false;
+          }
+          rlights[i] = false;
+        }
+        return;
+      }
       Node choice = children.get(0);
+      System.out.println("noFutureCrashes: " + choice.noFutureCrashes() + " noFutureOverflows: " + choice.noFutureOverflows());
 
       // Strategy 0: On the first turn, just let cars come in since search will
       // instantly terminate

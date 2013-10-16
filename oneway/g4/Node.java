@@ -12,7 +12,7 @@ import java.util.*;
 */
 
 public class Node implements Comparable<Node> {
-  private Segment[] segments;
+  public Segment[] segments;
   private ParkingLot[] lots;
   public ArrayList<Car> allCars;
   public Node parent = null;
@@ -215,7 +215,7 @@ public class Node implements Comparable<Node> {
   }
 
   // return false if overflows are guaranteed in the future
-  private boolean noFutureOverflows() {
+  public boolean noFutureOverflows() {
 
     for(int i = 1; i<lots.length-1; i++)
     {
@@ -238,33 +238,36 @@ public class Node implements Comparable<Node> {
         }
       }
 
-      if(lots[i].getLeftCarCount() + lots[i].getRightCarCount() + lcount + rcount > lots[i].getCapacity()) {
+
+      if(lots[i].getLeftCarCount() + lots[i].getRightCarCount() + rcount > lots[i].getCapacity() && lcount > 0 ||
+        lots[i].getLeftCarCount() + lots[i].getRightCarCount() + lcount > lots[i].getCapacity() && rcount > 0  ||
+        lots[i].getLeftCarCount() + lots[i].getRightCarCount() + lcount + rcount > lots[i].getCapacity() && (rcount > 0 && lcount > 0) ){
         return false;
       }
-    }    
+    }
 
     return true;
   }
 
   // return false if crashes are guaranteed in the future
-  private boolean noFutureCrashes() {
+  public boolean noFutureCrashes() {
     for(int i = 0;i < segments.length; i++) {
       boolean left = false, right = false;
       Car[] c = new Car[segments[i].getLength()];
       c = segments[i].getCarsByLocation();
 
-//      if (i > 0 && i < segments.length - 1) {
-//        Car incomingLeftboundCar = segments[i+1].getCarsByLocation()[0];
-//        Car incomingRightboundCar = segments[i-1].getCarsByLocation()[segments[i-1].getLength() - 1];
-//        if(segments[i].isLeftGreen() && 
-//            (lots[i+1].getLeftCarCount() > 0 
-//                || incomingLeftboundCar != null
-//                && incomingLeftboundCar.dir == Direction.LEFT)  
-//            && segments[i].isRightGreen() && 
-//              (lots[i].getRightCarCount() > 0) {
-//          return false;
-//        }
-//      }
+      if (i > 0 && i < segments.length - 1) {
+        Car incomingLeftboundCar = segments[i+1].getCarsByLocation()[0];
+        Car incomingRightboundCar = segments[i-1].getCarsByLocation()[segments[i-1].getLength() - 1];
+        if(segments[i].isLeftGreen() &&
+            (lots[i+1].getLeftCarCount() > 0
+                || incomingLeftboundCar != null
+                && incomingLeftboundCar.dir == Direction.LEFT)
+            && segments[i].isRightGreen() &&
+              (lots[i].getRightCarCount() > 0)) {
+          return false;
+        }
+      }
       for(int j =0; j < c.length; j++) {
         if(c[j] != null && c[j].isRightbound()) {
             right = true;
