@@ -31,10 +31,10 @@ public class Player extends oneway.sim.Player
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
 
-//      List<Node> children = node.successors();
-//      Collections.sort(children);
-//      if (children.size() == 0) return;
-//      Node choice = children.get(0);
+      List<Node> children = node.successors();
+      Collections.sort(children);
+      if (children.size() == 0) return;
+      Node choice = children.get(0);
 
       // Strategy 0: On the first turn, just let cars come in since search will
       // instantly terminate
@@ -46,7 +46,7 @@ public class Player extends oneway.sim.Player
         return;
       }
 
-      Node choice = new Searcher().best(node);
+//      Node choice = new Searcher().best(node);
 
       if (choice == null) {
         // This is the DEADLOCK case
