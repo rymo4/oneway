@@ -167,7 +167,7 @@ public class Node implements Comparable<Node> {
     for(int i = 0; i < max; i++) {
       int binaryLightRepresentation = i;
       binaryLightRepresentation = binaryLightRepresentation | bitMask;
-      binaryLightRepresentation = binaryLightRepresentation & edgeMask;
+      //binaryLightRepresentation = binaryLightRepresentation & edgeMask;
       combinations.add(binaryLightRepresentation);
     }
     
@@ -351,8 +351,8 @@ public class Node implements Comparable<Node> {
     // This is a hack to favor greens on the ends. Because we don't
     // generate states where incoming cars will crash, we should always favor
     // states with greens on the sides
-    if (segments[segments.length - 1].isLeftGreen()) cost -= 0.01;
-    if (segments[0].isRightGreen()) cost -= 0.01;
+    if (segments[segments.length - 1].isLeftGreen()) cost -= 0.1;
+    if (segments[0].isRightGreen()) cost -= 0.1;
     //System.out.println("g: " + g + ", h: " + h);
     memoizedF = cost;
     return cost;
