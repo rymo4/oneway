@@ -1,0 +1,43 @@
+1. default.txt
+The standard default map.
+
+2. more.txt
+Lots of small road length.
+
+3. long.txt
+A few long road length.
+
+4. longcenter.txt
+Long road length in the middle.
+
+5. incr_decr.txt
+Increasing road length, decreasing parking lot capacity
+
+6. alternate.txt
+average road length, alternating small and large parking lots
+
+7. tiny.txt
+two roads of length 2, no parking
+
+8. more_inf.txt
+lots of small road, but with 'infinite' parking lot capacity
+
+9. long_inf.txt
+A few long road length with 'infinite' parking lot capacity
+
+10. pow.txt
+segment length is pow of 2
+
+11. noparking.txt
+zero capacity parking lot
+
+12. smallcenter.txt
+small parking capacity in the center
+
+13. largecenter.txt
+large parking capacity in the center
+
+14. crazy.txt
+100 road segments
+Randomly generated segment length from [5,10]
+Randomly picked parking lot capacity from {2, 10}

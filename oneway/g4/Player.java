@@ -28,9 +28,21 @@ public class Player extends oneway.sim.Player
                           boolean[] rlights)
     {
       currentTime++;
+      
+      // Strategy 0: On the first turn, just let cars come in since search will
+      // instantly terminate
+      boolean moreThanOneRoad = left.length > 2;
+      if (moreThanOneRoad && movingCars.length == 0 && !anyParkedCars(left, right) && capacity[1] > 0){
+        System.out.println("First turn with 2+ segments, so lettings cars in.");
+        llights[llights.length-1] = true;
+        rlights[0] = true;
+        return;
+      }
+      
       Node node = new Node(currentTime, nsegments, nblocks, movingCars, 
           left, right, capacity, llights, rlights);
-
+//      Node choice = new Searcher().best(node);
+      
       List<Node> children = node.successors();
       Collections.sort(children);
       if (children.size() == 0) {
@@ -48,19 +60,7 @@ public class Player extends oneway.sim.Player
       Node choice = children.get(0);
       System.out.println("noFutureCrashes: " + choice.noFutureCrashes() + " noFutureOverflows: " + choice.noFutureOverflows());
 
-      // Strategy 0: On the first turn, just let cars come in since search will
-      // instantly terminate
-      boolean moreThanOneRoad = left.length > 2;
-      if (moreThanOneRoad && movingCars.length == 0 && !anyParkedCars(left, right) && capacity[1] > 0){
-        System.out.println("First turn with 2+ segments, so lettings cars in.");
-        llights[llights.length-1] = true;
-        rlights[0] = true;
-        return;
-      }
-
-//      Node choice = new Searcher().best(node);
-
-      if (choice == null) {
+      if (choice == null || choice == node) {
         // This is the DEADLOCK case
         // Escape Strategy: set all greens in direction that has most cars morving in it
         // and all red is the other direction

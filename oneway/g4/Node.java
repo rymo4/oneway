@@ -167,7 +167,7 @@ public class Node implements Comparable<Node> {
     for(int i = 0; i < max; i++) {
       int binaryLightRepresentation = i;
       binaryLightRepresentation = binaryLightRepresentation | bitMask;
-      //binaryLightRepresentation = binaryLightRepresentation & edgeMask;
+      binaryLightRepresentation = binaryLightRepresentation & edgeMask;
       combinations.add(binaryLightRepresentation);
     }
     
@@ -373,31 +373,42 @@ public class Node implements Comparable<Node> {
     int partDistance = 0;
 
     for (int i = 0; i < lots.length; i++) {
+      int leftboundWaitTime = 0;
+      int rightboundWaitTime = 0;
       // Calculate the expected cost of the segment
       // Skip segment calculation if at index 0.
       if (i != 0) {
         Segment s = segments[i-1];
         Car[] cars = s.getCarsByLocation();
+        leftboundWaitTime = 0;
+        rightboundWaitTime = 0;
         for (int segDistance = 0; segDistance < cars.length; segDistance++) {
           if (cars[segDistance] != null) {
             int expectedFinish;
             if (cars[segDistance].dir == Direction.LEFT) {
+              leftboundWaitTime = partDistance;
               expectedFinish = currentTime + segDistance + partDistance;
             }
             else {
+              if (rightboundWaitTime == 0) { rightboundWaitTime = segDistance; } 
               expectedFinish = currentTime + (totalDistance - partDistance - (segDistance + 1));
             }
             cars[segDistance].h = (expectedFinish - currentTime + 1);
           }
         }
         partDistance += s.getLength();
+        
+        // Add incoming car information to previous parking lot
+        for(Car c : lots[i-1].getRightCars()) {
+          c.h += leftboundWaitTime;
+        }
       }
       // Calculate the expected cost of the lot
       ParkingLot l = lots[i];
       int carsAhead = 0;
       for (Car c : l.getLeftCars()) {
         int expectedFinish;
-        expectedFinish = currentTime + partDistance + carsAhead * 2;
+        expectedFinish = currentTime + partDistance + carsAhead * 2 + rightboundWaitTime;
         c.h = (expectedFinish - currentTime + 1);
         carsAhead++;
       }

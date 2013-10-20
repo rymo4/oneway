@@ -1,0 +1,32 @@
+1. begin.txt
+all cars arrive at the beginning
+
+2. burst.txt
+Car arrive in burst
+
+3. default.txt
+Standard default timing
+
+4. fib.txt
+Timing generated from fibonacci sequence
+
+5. heavy.txt
+Uniform with heavy traffice
+
+6. heavyside.txt
+Heavy on one side, scattered with cars from other side
+
+7. oneside.txt
+Traffic only from one side
+
+8. rushhour.txt
+Morning, evening
+
+9. sparse.txt
+Light traffic
+
+10. uniform.txt
+uniform
+
+11. uniform2.txt
+uniform

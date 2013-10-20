@@ -21,6 +21,7 @@ public class Searcher {
       Node n = open.poll();
 //      n.printNode();
 
+//      System.out.println(open.size());
       if (n.f() < bestScoreSoFar && n.getCurrentTime() > bestTime){
         bestSoFar = n;
         bestScoreSoFar = n.f();
@@ -28,7 +29,7 @@ public class Searcher {
       }
 //      System.out.println(n.allCars.size());
 //
-      if (outOfTime()) return firstStepInPath(bestSoFar);
+//      if (outOfTime()) return firstStepInPath(bestSoFar);
 
       if (isGoal(n)) {
         System.out.println("Found Goal");
@@ -37,6 +38,13 @@ public class Searcher {
       }
       
       ArrayList<Node> children = n.successors();
+      while (children.size() < 2) {
+        if (isGoal(n)) { return firstStepInPath(n); }
+        n = children.get(0);
+        children = n.successors();
+      }
+      System.out.println(children.size());
+      System.out.println(n.getCurrentTime());
       for (int i = 0; i < children.size(); i++){
         Node child = children.get(i);
         child.parent = n;
